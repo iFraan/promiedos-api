@@ -2,18 +2,34 @@
   "name": "promiedos-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsx test.ts",
+    "build": "tsup",
+    "start": "node dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iFraan/promiedos-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iFraan/promiedos-api/issues"
+  },
+  "homepage": "https://github.com/iFraan/promiedos-api#readme",
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "ifraan_",
+  "license": "GPL-3.0",
   "dependencies": {
     "axios": "^1.7.9",
     "cheerio": "^1.0.0"
   },
   "devDependencies": {
+    "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
