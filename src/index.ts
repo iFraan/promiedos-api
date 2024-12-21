@@ -4,7 +4,7 @@ import { Match } from './types/internal';
 
 const BASE_URL = 'https://www.promiedos.com.ar/'
 
-export async function fetchPromiedos({ mode = 'live' }: { mode?: 'live' | 'yesterday' } = {}): Promise<Match[]> {
+export async function fetchPromiedos({ mode = 'live' }: { mode?: 'live' | 'yesterday' | 'tomorrow' } = {}): Promise<Match[]> {
 
   let url = '';
 
@@ -15,39 +15,47 @@ export async function fetchPromiedos({ mode = 'live' }: { mode?: 'live' | 'yeste
     case 'yesterday':
       url = BASE_URL + '/ayer';
       break;
-    default: 
+    case 'tomorrow':
+      url = BASE_URL + '/man';
+      break;
+    default:
       throw new Error('Invalid mode');
   }
 
   // Fetch the HTML
   const response = await axios.get(url);
   const html = response.data;
-  
-  // Load HTML into cheerio
+
+
   const $ = cheerio.load(html);
-  
-  const matches: Match[] = [];
-  
-  // Parse each fixture table
-  $('#fixturein table').each((_, table) => {
-    const league = $(table).find('.tituloin').text().trim();
-    
-    // Get match rows
-    $(table).find('tr[id^="1_"], tr[id^="12_"], tr[id^="11_"]').each((_, row) => {
-      matches.push({
+  const matches = [];
+
+  // Find all league sections using div[class] that contain matches
+  $('#partidos div[id="fixturein"]').each((_, div) => {
+    const league = $(div).find('tr.tituloin a').text().trim();
+
+    $(div).find('tr').each((_, row) => {
+      // Only process rows with match data
+      if (!$(row).attr('id') || $(row).hasClass('tituloin') || $(row).hasClass('goles')) {
+        return;
+      }
+
+      const match = {
         league,
-        time: $(row).find('.game-time').text().trim(),
+        time: $(row).find('td:first-child').text().trim(),
         team1: {
-          name: $(row).find('.game-t1 .datoequipo').first().text().trim(),
-          logo: $(row).find('.game-t1 img').first().attr('src'),
-          score: $(row).find('.game-r1 span').text().trim()
+          name: $(row).find('.datoequipo').first().text().trim(),
+          score: $(row).find('span[id^="r1"]').text().trim(),
+          logo: $(row).find('.game-t1 img').first().attr('src')
         },
         team2: {
-          name: $(row).find('.game-t1:last .datoequipo').text().trim(),
-          logo: $(row).find('.game-t1:last img').attr('src'), 
-          score: $(row).find('.game-r2 span').text().trim()
+          name: $(row).find('.datoequipo').last().text().trim(),
+          score: $(row).find('span[id^="r2"]').text().trim(),
+          logo: $(row).find('.game-t1 img').last().attr('src')
         }
-      });
+      };
+
+      matches.push(match);
     });
   });
 
