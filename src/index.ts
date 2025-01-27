@@ -4,7 +4,7 @@ import { APIResponse } from './types/external';
 
 const BASE_URL = 'https://api.promiedos.com.ar'
 
-export async function fetchPromiedos({ mode = 'live' }: { mode?: 'today' | 'live' | 'yesterday' | 'tomorrow' } = {}): Promise<Match[]> {
+export async function fetchMatches({ mode = 'live' }: { mode?: 'today' | 'live' | 'yesterday' | 'tomorrow' } = {}): Promise<Match[]> {
 
   let url = '';
 
@@ -53,3 +53,5 @@ export async function fetchPromiedos({ mode = 'live' }: { mode?: 'today' | 'live
 
   return matches;
 }
+
+export const fetchPromiedos = fetchMatches;
