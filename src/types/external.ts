@@ -21,10 +21,14 @@ export type League = {
 
 export type Game = {
     id: string;
-    stage_round_name: string;
+    stage_round_name?: string;
     winner: number;
+    to_qualify?: number;
     teams: Team[];
     url_name: string;
+    scores?: [number, number];
+    agg_scores?: [number, number];
+    description?: string;
     status: {
         enum: number;
         name: string;
@@ -55,6 +59,13 @@ export type Team = {
     id: string;
     country_id: string;
     red_cards: number;
+    goals?: {
+        player_name: string;
+        player_sname: string;
+        time: number;
+        time_to_display: string;
+        goal_type?: string;
+    }[];
 }
 
 export type APIResponse = {
