@@ -9,6 +9,13 @@ export type Match = {
         id?: string;
         red_cards?: number;
         country_id?: string;
+        goals?: {
+            player_name: string;
+            player_sname: string;
+            time: number;
+            time_to_display: string;
+            goal_type?: string;
+        }[];
     };
     team2: {
         name: string;
