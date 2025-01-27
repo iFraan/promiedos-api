@@ -7,7 +7,7 @@ export const mapGamesToMatches = (games: Game[], league: League): Match[] => {
   const matches: Match[] = [];
   for (const game of league.games) {
     const [team1, team2] = game.teams;
-    const [score1, score2] = game.scores;
+    const [score1, score2] = game.scores ?? [0, 0];
     matches.push({
       league: league.name,
       time: game.start_time,
@@ -16,13 +16,13 @@ export const mapGamesToMatches = (games: Game[], league: League): Match[] => {
         ...team1,
         logo: `${BASE_URL}/images/team/${team1.id}/1`,
         name: team1.name,
-        score: String(score1 ?? 0),
+        score: String(score1),
       },
       team2: {
         ...team2,
         logo: `${BASE_URL}/images/team/${team2.id}/1`,
         name: team2.name,
-        score: String(score2 ?? 0),
+        score: String(score2),
       },
     })
   }
