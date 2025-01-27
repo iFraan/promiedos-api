@@ -1,63 +1,72 @@
 import axios from 'axios';
-import *  as cheerio from 'cheerio';
-import { Match } from './types/internal';
+import { League, Match } from './types/internal';
+import { APIResponse } from './types/external';
+import { mapGamesToMatches } from './utils';
 
-const BASE_URL = 'https://www.promiedos.com.ar/'
+const BASE_URL = 'https://api.promiedos.com.ar'
 
-export async function fetchPromiedos({ mode = 'live' }: { mode?: 'live' | 'yesterday' | 'tomorrow' } = {}): Promise<Match[]> {
+export async function fetchMatches({ mode = 'today' }: { mode?: 'today' | 'live' | 'yesterday' | 'tomorrow' } = {}): Promise<Match[]> {
 
   let url = '';
 
   switch (mode) {
     case 'live':
-      url = BASE_URL;
+      url = BASE_URL + '/games/today';
       break;
     case 'yesterday':
-      url = BASE_URL + '/ayer';
-      break;
     case 'tomorrow':
-      url = BASE_URL + '/man';
+    case 'today':
+      url = BASE_URL + '/games/' + mode;
       break;
     default:
       throw new Error('Invalid mode');
   }
 
   // Fetch the HTML
-  const response = await axios.get(url);
-  const html = response.data;
+  const response = await axios.get<APIResponse>(url);
+  const matches: Match[] = [];
 
+  const data = response.data;
 
-  const $ = cheerio.load(html);
-  const matches = [];
-
-  // Find all league sections using div[class] that contain matches
-  $('#partidos div[id="fixturein"]').each((_, div) => {
-    const league = $(div).find('tr.tituloin a').text().trim();
-
-    $(div).find('tr').each((_, row) => {
-      // Only process rows with match data
-      if (!$(row).attr('id') || $(row).hasClass('tituloin') || $(row).hasClass('goles')) {
-        return;
-      }
-
-      const match = {
-        league,
-        time: $(row).find('td:first-child').text().trim(),
-        team1: {
-          name: $(row).find('.datoequipo').first().text().trim(),
-          score: $(row).find('span[id^="r1"]').text().trim(),
-          logo: $(row).find('.game-t1 img').first().attr('src')
-        },
-        team2: {
-          name: $(row).find('.datoequipo').last().text().trim(),
-          score: $(row).find('span[id^="r2"]').text().trim(),
-          logo: $(row).find('.game-t1 img').last().attr('src')
-        }
-      };
-
-      matches.push(match);
-    });
-  });
+  for (const league of data?.leagues) {
+    const _matches = mapGamesToMatches(league.games, league)
+    matches.push(..._matches)
+  }
 
   return matches;
 }
+
+export async function fetchLeagues({ mode = 'today' }: { mode?: 'today' | 'live' | 'yesterday' | 'tomorrow' } = {}): Promise<League[]> {
+
+  let url = '';
+
+  switch (mode) {
+    case 'live':
+      url = BASE_URL + '/games/today';
+      break;
+    case 'yesterday':
+    case 'tomorrow':
+    case 'today':
+      url = BASE_URL + '/games/' + mode;
+      break;
+    default:
+      throw new Error('Invalid mode');
+  }
+
+  // Fetch the HTML
+  const response = await axios.get<APIResponse>(url);
+  const leagues: League[] = [];
+
+  const data = response.data;
+
+  for (const league of data?.leagues) {
+    leagues.push({
+      ...league,
+      matches: mapGamesToMatches(league.games, league)
+    })
+  }
+
+  return leagues;
+}
+
+export const fetchPromiedos = fetchMatches;
