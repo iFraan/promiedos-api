@@ -24,6 +24,8 @@ const matches = await fetchMatches({ mode?: "today" | "yesterday" | "tomorrow" }
 console.log(matches);
 ```
 
+look at [types](./src/types/internal.ts) for output references
+
 ## Disclaimer
 
 This project is fully made for educational purposes
