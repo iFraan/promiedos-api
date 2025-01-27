@@ -43,3 +43,15 @@ export type Match = {
         trend: number;
     }[];
 }
+
+export type League = {
+    name: string;
+    id: string;
+    url_name: string;
+    country_id: string;
+    show_country_flags: boolean;
+    allow_open: boolean;
+    country_name: string;
+    is_international: boolean;
+    matches: Match[];
+}
