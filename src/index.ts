@@ -28,7 +28,7 @@ export async function fetchMatches({ mode = 'today' }: { mode?: 'today' | 'live'
 
   const data = response.data;
 
-  for (const league of data?.leagues) {
+  for (const league of data.leagues ?? []) {
     const _matches = mapGamesToMatches(league.games, league)
     matches.push(..._matches)
   }
@@ -59,7 +59,7 @@ export async function fetchLeagues({ mode = 'today' }: { mode?: 'today' | 'live'
 
   const data = response.data;
 
-  for (const league of data?.leagues) {
+  for (const league of data.leagues ?? []) {
     leagues.push({
       ...league,
       matches: mapGamesToMatches(league.games, league)
